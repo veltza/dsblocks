@@ -93,6 +93,20 @@ readint(const char *path, int *var) {
         return 1;
 }
 
+int
+readstr(const char *path, char *str, int maxlen) {
+        FILE *fp;
+
+        if (!(fp = fopen(path, "r")))
+                return 0;
+        if (fgets(str, maxlen, fp) == NULL) {
+                fclose(fp);
+                return 0;
+        }
+        fclose(fp);
+        return 1;
+}
+
 void
 uspawn(char *const *arg)
 {

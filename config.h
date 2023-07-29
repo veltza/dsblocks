@@ -1,9 +1,10 @@
+#include "blocks/backlight.h"
 #include "blocks/battery.h"
-#include "blocks/cputemp.h"
 #include "blocks/calendar.h"
-#include "blocks/hotspot.h"
-#include "blocks/mail.h"
-#include "blocks/ram.h"
+#include "blocks/capslock.h"
+#include "blocks/cpu.h"
+#include "blocks/mem.h"
+#include "blocks/network.h"
 #include "blocks/volume.h"
 
 /* DELIMITERENDCHAR must be less than 32.
@@ -17,7 +18,7 @@
    dwm.c and color codes in util.h. */
 #define DELIMITERENDCHAR                10
 
-static const char delimiter[] = { ' ', ' ', ' ', DELIMITERENDCHAR };
+static const char delimiter[] = { ' ', '|', ' ', DELIMITERENDCHAR };
 
 #include "block.h"
 
@@ -43,12 +44,13 @@ static const char delimiter[] = { ' ', ' ', ' ', DELIMITERENDCHAR };
 
 static Block blocks[] = {
 /*      funcu                   funcc                   interval        signal */
-        { hotspotu,             hotspotc,               -1,             4 },
-        { calendaru,            calendarc,              1,              1 },
-        { mailu,                mailc,                  60,             3 },
-        { volumeu,              volumec,                0,              2 },
-        { cputempu,             cputempc,               2,              6 },
-        { ramu,                 ramc,                   2,              7 },
-        { batteryu,             batteryc,               10,             5 },
+        { capslocku,            NULL,                   0,              9 },
+        { backlightu,           NULL,                   2,              7 },
+        { volumeu,              volumec,                0,              1 },
+        { cpuu,                 cpuc,                   1,              3 },
+        { memu,                 memc,                   3,              4 },
+        { batteryu,             batteryc,               7,              2 },
+        { calendaru,            calendarc,              5,              5 },
+        { networku,             networkc,               4,              8 },
         { NULL } /* just to mark the end of the array */
 };

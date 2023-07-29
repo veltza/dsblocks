@@ -1,37 +1,40 @@
+#include <stdio.h>
 #include <time.h>
 
 #include "../util.h"
 #include "calendar.h"
 
-#define ICON                    COL1 "" COL0
+#define ICON                    COL11 " " COL0
 
-#define TOGGLECALCURSE          (char *[]){ SCRIPT("sigdwm"), "scrt i 4", NULL }
+/* Output format: 0 = time, 1 = date and time */
+static int OutputFormat = 0;
 
 size_t
 calendaru(char *str, int sigval)
 {
-        static int hidetime = 0;
-        time_t t = time(NULL);
-        struct tm tm = *localtime(&t);
+    static char *days[] = { "su", "ma", "ti", "ke", "to", "pe", "la" };
+    static char *months[] = { "tam", "hel", "maa", "huh", "tou", "kes", "hei", "elo", "syy", "lok", "mar", "jou" };
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
 
-        if (sigval == 0)
-                hidetime = !hidetime;
+    /* toggle output format (signal value 1) */
+    OutputFormat ^= (sigval == 1) ? 1 : 0;
 
-        if (hidetime)
-                return strftime(str, BLOCKLENGTH, ICON "%a, %b %d", &tm) + 1;
-        else
-                return strftime(str, BLOCKLENGTH, ICON "%a, %b %d, %R", &tm) + 1;
+    if (!OutputFormat)
+        return SPRINTF(str, ICON " %d:%02d", tm.tm_hour, tm.tm_min);
+    else
+        return SPRINTF(str, ICON " %s %d.%s %d:%02d",
+                days[tm.tm_wday], tm.tm_mday, months[tm.tm_mon], tm.tm_hour, tm.tm_min);
 }
 
 void
 calendarc(int button)
 {
-        switch (button) {
-                case 1:
-                        cspawn(TOGGLECALCURSE);
-                        break;
-                case 3:
-                        csigself(1, 0);
-                        break;
-        }
+    switch (button) {
+    case 1:
+        csigself(5, 1); /* toggle output format */
+        break;
+    default:
+        break;
+    }
 }
