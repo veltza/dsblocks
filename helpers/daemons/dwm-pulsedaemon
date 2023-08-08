@@ -1,9 +1,17 @@
-#!/bin/dash
+#!/usr/bin/env bash
 # This script should be autostarted on startup
 # It signals volume block to update on audio related events
 pactl subscribe |
     while IFS='' read -r event ; do
         case "$event" in
-            *" sink "*) sigdsblocks 1 ;;
+            *" sink "*)
+                sigdsblocks 1
+                sleep 1
+                event=''
+                while IFS='' read -t 0; do
+                    IFS='' read -r event
+                done
+                [ -n "$event" ] && sigdsblocks 1
+                ;;
         esac
     done &
