@@ -15,7 +15,7 @@
 #define COL12                           "\x17" /* network icon - up */
 #define COL13                           "\x18" /* network icon - down */
 
-#define SCRIPT(name)                    "/home/masi/.local/bin/"name
+#define SCRIPT(name)                    expanduser("~/.local/bin/"name)
 #define TERMCMD(...)                    cspawn((char *[]){ "st", "-e", __VA_ARGS__, NULL })
 
 #define SPRINTF(str, ...)               ({ \
@@ -25,6 +25,7 @@
 
 void cspawn(char *const *arg);
 void csigself(int sig, int sigval);
+char *expanduser(char *path);
 size_t getcmdout(char *const *arg, char *cmdout, size_t cmdoutlen);
 int readint(const char *path, int *var);
 int readstr(const char *path, char *str, int maxlen);

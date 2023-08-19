@@ -1,3 +1,4 @@
+#include <pwd.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,6 +27,41 @@ csigself(int sig, int sigval)
                 perror("csigself - sigqueue");
                 exit(1);
         }
+}
+
+/**
+ * Returns a pointer to the original path (no expansion) or internal static
+ * buffer when expansion occurs. The internal static buffer is overwritten
+ * every time the function is called.
+ */
+char *
+expanduser(char *path)
+{
+        static char fullpath[256];
+        static int n;
+        struct passwd *pw;
+        char *home;
+
+        if (!n) {
+                if (!(home = getenv("HOME")) || home[0] == '\0') {
+                        pw = getpwuid(geteuid());
+                        home = pw ? pw->pw_dir : NULL;
+                }
+                if (home) {
+                        n = snprintf(fullpath, sizeof fullpath, "%s", home);
+                        n = (n < (int)(sizeof fullpath)) ? n : (int)(sizeof fullpath);
+                }
+                if (n <= 0) {
+                        fullpath[0] = '.';
+                        n = 1;
+                }
+        }
+
+        if (path[0] != '~' || path[1] != '/')
+                return path;
+
+        snprintf(fullpath + n, (int)(sizeof fullpath) - n, "/%s", &path[2]);
+        return fullpath;
 }
 
 /* getcmdout doesn't null terminate cmdout
