@@ -1,12 +1,18 @@
 #include <stdio.h>
+#include <time.h>
 
 #include "../util.h"
 #include "volume.h"
 
-#define ICONmu                          " "
-#define ICONlo                          " "
-#define ICONme                          " "
-#define ICONhi                          " "
+#define ICONSP0                         " "
+#define ICONSP1                         " "
+#define ICONSP2                         " "
+#define ICONSP3                         " "
+
+#define ICONHP0                         " "
+#define ICONHP1                         " "
+#define ICONHP2                         " "
+#define ICONHP3                         " "
 
 #define VOLlo                           20
 #define VOLhi                           75
@@ -27,17 +33,32 @@
 size_t
 volumeu(char *str, int sigval)
 {
-    static int init, prvMute, prvVolumeL, prvVolumeR;
+    static char *icons[][4] = { {ICONSP0, ICONSP1, ICONSP2, ICONSP3}, {ICONHP0, ICONHP1, ICONHP2, ICONHP3} };
+    static int init, prvMute, prvVolumeL, prvVolumeR, prvHeadphones;
+    static long prvTimestamp, curTimestamp;
     char buf[256], **cmd, *icon;
-    int curMute, curVolumeL, curVolumeR, vol;
+    int idx, curMute, curVolumeL, curVolumeR, curHeadphones, vol;
+    struct timespec ts;
     size_t l;
 
-    if (!(l = getcmdout(PULSEINFO, buf, sizeof buf - 1))) {
-        *str++ = '\0';
-        return 1;
+    clock_gettime(CLOCK_REALTIME, &ts);
+    curTimestamp  = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+
+    if (ISSPLSIGVAL(sigval) || !prvTimestamp || curTimestamp - prvTimestamp > 500) {
+        if (!(l = getcmdout(PULSEINFO, buf, sizeof buf - 1))) {
+            *str++ = '\0';
+            return 1;
+        }
+        buf[l] = '\0';
+        sscanf(buf, "%d %d %d %d", &curMute, &curVolumeL, &curVolumeR, &curHeadphones);
+    } else {
+        curMute = prvMute;
+        curVolumeL = prvVolumeL;
+        curVolumeR = prvVolumeR;
+        curHeadphones = prvHeadphones;
     }
-    buf[l] = '\0';
-    sscanf(buf, "%d %d %d", &curMute, &curVolumeL, &curVolumeR);
+
+    prvTimestamp  = curTimestamp;
 
     /* volume control */
     if (!ISSPLSIGVAL(sigval)) {
@@ -61,8 +82,8 @@ volumeu(char *str, int sigval)
     }
 
     vol = (curVolumeL > curVolumeR) ? curVolumeL : curVolumeR;
-    icon = curMute ? ICONmu
-                   : (vol <= VOLlo) ? ICONlo : (vol < VOLhi) ? ICONme : ICONhi;
+    idx = curMute ? 0 : (vol <= VOLlo) ? 1 : (vol < VOLhi) ? 2 : 3;
+    icon = icons[curHeadphones & 1][idx];
 
     if (init) {
         #if NOTIFYENABLED
@@ -96,9 +117,10 @@ volumeu(char *str, int sigval)
     }
 
     init = 1;
+    prvMute = curMute;
     prvVolumeL = curVolumeL;
     prvVolumeR = curVolumeR;
-    prvMute = curMute;
+    prvHeadphones = curHeadphones;
 
     if (curMute)
         return SPRINTF(str, COL3 "%s" COL0, icon);

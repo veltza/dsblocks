@@ -6,7 +6,7 @@ pactl subscribe |
         case "$event" in
             *" sink "*)
                 sigdsblocks 1
-                sleep 1
+                sleep 1.5
                 event=''
                 while IFS='' read -t 0; do
                     IFS='' read -r event
