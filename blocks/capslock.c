@@ -6,7 +6,7 @@
 #include "../util.h"
 #include "capslock.h"
 
-#define NOTIFYFONT                      "<span font='JetBrainsMono NF 12'>"
+#define NOTIFYFONT                      "<span font='JetBrainsMono Nerd Font 12'>"
 #define NOTIFYLOCKTEXT                  " Caps Lock On"
 #define NOTIFYUNLOCKTEXT                " Caps Lock Off"
 #define NOTIFYTIME                      "2000"
