@@ -20,8 +20,7 @@ capslocku(char *str, int sigval)
     unsigned int state;
     #if NOTIFYENABLED
     char buf[256];
-    char *cmd[] = { "/usr/bin/dunstify", "-t", NOTIFYTIME, "-r", NOTIFYID,
-                    "--icon=no-icon", "", buf, NULL };
+    char *cmd[] = { "/usr/bin/dunstify", "-t", NOTIFYTIME, "-r", NOTIFYID, "", buf, NULL };
     #endif
 
     *str = '\0';

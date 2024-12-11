@@ -109,8 +109,7 @@ backlightu(char *str, int sigval)
     int brightness_new;
     #if NOTIFYENABLED
     char buf[256];
-    char *cmd[] = { "/usr/bin/dunstify", "-t", NOTIFYTIME, "-r", NOTIFYID,
-                    "--icon=no-icon", "", buf, NULL };
+    char *cmd[] = { "/usr/bin/dunstify", "-t", NOTIFYTIME, "-r", NOTIFYID, "", buf, NULL };
     #endif
 
     if (!detectbacklight()) {

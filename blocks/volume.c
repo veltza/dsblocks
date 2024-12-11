@@ -88,8 +88,7 @@ volumeu(char *str, int sigval)
     if (init) {
         #if NOTIFYENABLED
         if (!ISSPLSIGVAL(sigval)) {
-            cmd = (char *[]) { "/usr/bin/dunstify", "-t", NOTIFYTIME, "-r", NOTIFYID,
-                               "--icon=no-icon", "", buf, NULL };
+            cmd = (char *[]) { "/usr/bin/dunstify", "-t", NOTIFYTIME, "-r", NOTIFYID, "", buf, NULL };
             if (curMute && !prvMute)
                 snprintf(buf, sizeof buf, NOTIFYFONT " %s Mute \n</span>", icon);
             else if (curVolumeL == curVolumeR)

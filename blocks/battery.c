@@ -58,6 +58,7 @@
                                             msg, NULL, NULL }
 
 #define NNOTIFY(t, msg)         (char *[]){ "/usr/bin/dunstify", \
+                                            "-i", "dialog-information", \
                                             "-t", t, \
                                             "-r", NOTIFYID, \
                                             msg, NULL, NULL }
