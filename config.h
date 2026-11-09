@@ -49,7 +49,7 @@ static Block blocks[] = {
         { volumeu,              volumec,                0,              1 },
         { cpuu,                 cpuc,                   1,              3 },
         { memu,                 memc,                   3,              4 },
-        { batteryu,             batteryc,               7,              2 },
+        { batteryu,             batteryc,              11,              2 },
         { calendaru,            calendarc,              5,              5 },
         { networku,             networkc,               4,              8 },
         { NULL } /* just to mark the end of the array */

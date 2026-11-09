@@ -1,8 +1,8 @@
+#include <dirent.h>
 #include <ifaddrs.h>
+#include <net/if_arp.h>
 #include <stdio.h>
 #include <string.h>
-#include <dirent.h>
-#include <net/if_arp.h>
 #include <sys/stat.h>
 
 #include "../util.h"
@@ -15,8 +15,8 @@
 
 #define NETWORK_INTERFACES              "/sys/class/net"
 
-#define NETWORK_MANAGER                 (char *[]){ "networkmanager_dmenu", NULL }
-#define NETWORK_EDITOR                  (char *[]){ "nm-connection-editor", NULL }
+#define NETWORK_MANAGER                 (char *[]){ "/bin/dash", "-c", "networkmanager_dmenu", NULL }
+#define NETWORK_EDITOR                  (char *[]){ "/bin/dash", "-c", "nm-connection-editor", NULL }
 
 enum { ETHER, WIFI };
 

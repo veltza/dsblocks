@@ -164,9 +164,9 @@ batteryu(char *str, int sigval)
                                        ICOND10 };
     static int cap, oldac = -1;
     static int critwarning, lowwarning, fullwarning;
-    static int cfull, cnow, ccur, rate;
+    static int full, now, left, rate;
     static int hr, mn, timeout;
-    int err = 0;
+    int err;
     size_t l;
 
     if (!detectbattery()) {
@@ -231,27 +231,37 @@ batteryu(char *str, int sigval)
                 (cap < 10) ? COL6 : COL0, cap);
     }
 
-    err |= !readbattery("current_now", &rate);
-    rate = calc_avg_rate(rate, ac);
+    err = 1;
+    if (readbattery("current_now", &rate) ||
+        readbattery("power_now", &rate)) {
+        rate = rate < 0 ? -rate : rate;
+        rate = calc_avg_rate(rate, ac);
+        err = 0;
+    }
 
     if (showtime) {
         if (--timeout <= 0) {
-            err |= !readbattery("charge_full", &cfull);
-            err |= !readbattery("charge_now", &cnow);
-            ccur = (ac > 0) ? cfull - cnow : cnow;
-            if (oldac == ac && rate) {
-                hr = ccur / rate;
-                mn = (ccur * 60 / rate) - hr * 60;
-            } else {
-                hr = 0;
-                mn = 0;
+            if (!err) {
+                if (!readbattery("charge_full", &full))
+                    err |= !readbattery("energy_full", &full);
+                if (!readbattery("charge_now", &now))
+                    err |= !readbattery("energy_now", &now);
+                left = (ac > 0) ? full - now : now;
+                if (oldac == ac && rate) {
+                    hr = left / rate;
+                    mn = ((long)left * 60 / rate) - hr * 60;
+                } else {
+                    hr = mn = (oldac == ac) ? 0 : -1;
+                }
             }
             timeout = TIMEINTERVAL;
         }
-        if (err || !cfull || (ac <= 0 && !rate))
-            l += snprintf(str + l, BLOCKLENGTH - l, " (?)");
-        else if (ac > 0 && (!ccur || cap >= 100))
+        if (err || (ac <= 0 && !rate))
+            l += snprintf(str + l, BLOCKLENGTH - l, err ? " (ERR)" : " (?)");
+        else if (ac > 0 && (!left || cap >= 100))
             l += snprintf(str + l, BLOCKLENGTH - l, " (full)");
+        else if (hr < 0)
+            l += snprintf(str + l, BLOCKLENGTH - l, " (-:--)");
         else
             l += snprintf(str + l, BLOCKLENGTH - l, " (%d:%02d)", hr, mn);
     }

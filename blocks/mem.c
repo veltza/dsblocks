@@ -16,7 +16,8 @@ memu(char *str, int sigval)
     char buffer[256];
     int i;
     unsigned long long int used, usedDiff;
-    unsigned long long int total = 0, free = 0, buffers = 0, cached = 0, sreclaimable = 0;
+    unsigned long long int total = 0, free = 0, buffers = 0;
+    unsigned long long int cached = 0, shmem = 0, sreclaimable = 0;
 
     if ((file = fopen("/proc/meminfo", "r")) == NULL) {
         *str = '\0';
@@ -26,11 +27,12 @@ memu(char *str, int sigval)
     #define READVALUE(match, var) (!var && strncmp(buffer, match, sizeof match - 1) == 0) \
                                   { sscanf(buffer + sizeof match - 1, " %llu kB", &var); i++; }
 
-    for (i = 0; i < 5 && fgets(buffer, sizeof buffer, file);) {
+    for (i = 0; i < 6 && fgets(buffer, sizeof buffer, file);) {
         if READVALUE("MemTotal:", total)
         else if READVALUE("MemFree:", free)
         else if READVALUE("Buffers:", buffers)
         else if READVALUE("Cached:", cached)
+        else if READVALUE("Shmem:", shmem)
         else if READVALUE("SReclaimable:", sreclaimable)
     }
 
@@ -41,6 +43,7 @@ memu(char *str, int sigval)
 
     usedDiff = free + buffers + cached + sreclaimable;
     used = (total >= usedDiff) ? total - usedDiff : total - free;
+    used += shmem;
 
     /* toggle output format (signal value 1) */
     OutputFormat ^= (sigval == 1) ? 1 : 0;
